@@ -13,9 +13,9 @@ module.exports = function (grunt) {
         },
         jsdoc : {
             dist : {
-                src: ['src/**/*.js'],
+                src: ['lib/**/*.js'],
                 options: {
-                    destination: 'doc'
+                    destination: 'docs'
                 }
             }
         },
@@ -28,14 +28,6 @@ module.exports = function (grunt) {
                 'Gruntfile.js',
                 'src/**/*.js'
             ]
-        },
-        uglify: {
-            dist: {
-                files: {
-                    'src/jolokia.min.js': ['src/jolokia.js'],
-                    'src/drivers/jolokia.cubism.min.js': ['src/drivers/jolokia.cubism.js']
-                }
-            }
         },
         shell: {
             test: {

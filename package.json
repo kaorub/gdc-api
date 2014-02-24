@@ -1,6 +1,10 @@
 {
   "name": "gdc-api",
   "version": "0.1.0",
+  "description": "Node.js interface to GoodData public API",
+  "keywords": [
+    "GoodData"
+  ],
   "author": {
     "name": "Ján Naništa",
     "email": "jan.jakub.nanista@gmail.com"
@@ -11,7 +15,10 @@
   },
   "main": "./lib/auth",
   "dependencies": {
-    "q": "~1.0.0"
+    "q": "~1.0.0",
+    "simple-imap-inbox": "~0.1.7",
+    "moment": "~2.5.1",
+    "grunt-jsdoc": "~0.5.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
