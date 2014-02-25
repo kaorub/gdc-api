@@ -13,7 +13,6 @@ return user.register({
     lastName: 'Legit',
     username: 'YOUR EMAIL HERE',
     password: 'YOUR PASSWORD HERE'
-}).done(function(data) {
-    console.log('user data');
-    console.log(JSON.stringify(data, null, '\t'));
+}).done(function() {
+    console.log('user has been registered');
 });
