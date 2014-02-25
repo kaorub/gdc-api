@@ -31,7 +31,7 @@ module.exports = function (grunt) {
         },
         shell: {
             test: {
-                command: 'mocha --reporter spec --colors --timeout 150000 test/*.js',
+                command: 'mocha --reporter spec --colors --timeout 150000',
                 options: {
                     stdout: true,
                     stderr: true
@@ -42,6 +42,10 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', function(target) {
         var tasks = ['jshint', 'shell:test'];
+        var pattern = grunt.option('test') || '*';
+        var test = 'test/' + pattern + '_test.js';
+        
+        grunt.config.set('shell.test.command', grunt.config.get('shell.test.command') + ' ' + test);
 
         if (target === 'live') {
             tasks.push('watch:test');
