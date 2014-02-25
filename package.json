@@ -1,6 +1,6 @@
 {
   "name": "gdc-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node.js interface to GoodData public API",
   "keywords": [
     "GoodData"
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/janjakubnanista/gdc-api.git"
   },
-  "main": "./lib/auth",
+  "main": "./lib/api",
   "dependencies": {
     "q": "~1.0.0",
     "simple-imap-inbox": "~0.1.7",
