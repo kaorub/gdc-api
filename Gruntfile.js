@@ -31,7 +31,7 @@ module.exports = function (grunt) {
         },
         shell: {
             test: {
-                command: 'mocha --reporter spec --colors test/*.js',
+                command: 'mocha --reporter spec --colors --timeout 150000 test/*.js',
                 options: {
                     stdout: true,
                     stderr: true

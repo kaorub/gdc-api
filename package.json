@@ -1,6 +1,6 @@
 {
   "name": "gdc-api",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Node.js interface to GoodData public API",
   "keywords": [
     "GoodData"
@@ -35,7 +35,8 @@
     "mocha-as-promised": "~2.0.0",
     "chai": "~1.8.1",
     "chai-as-promised": "~4.1.0",
-    "colors": "~0.6.2"
+    "colors": "~0.6.2",
+    "sinon-expect": "~0.2.0"
   },
   "engines": {
     "node": ">=0.8.0"

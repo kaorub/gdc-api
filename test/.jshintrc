@@ -20,6 +20,7 @@
   "smarttabs": true,
   "globals": {
     "describe": false,
+    "context": false,
     "it": false,
     "before": false,
     "beforeEach": false,
