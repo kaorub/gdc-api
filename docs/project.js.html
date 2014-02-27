@@ -31,13 +31,13 @@ var Q = require('q');
 
 /**
  * Project resource.
- * 
+ *
  * @constructor
- * 
+ *
  * @property {API} api API instance
  * @property {User} user User instance
  * @property {Object} data Server data
- * 
+ *
  * @param {API} api  API instance
  * @param {User} user User instance
  * @param {Object} data [optional] Server data
@@ -50,7 +50,7 @@ var Project = function(api, user, data) {
 
 /**
  * Reference to Role class
- * 
+ *
  * @static
  * @type {Class}
  */
@@ -58,27 +58,27 @@ Project.Role = Role;
 
 /**
  * Create new project on server.
- * 
+ *
  * Returned promise is resolved after the project is in `ENABLED` state.
- * 
+ *
  * Passed object is a simplification of project definition. It should contain following
  * properties:
- * 
+ *
  * - token
  * - driver (Defaults to `Pg`)
  * - title
  * - summary
  * - template
- * 
+ *
  * Returned promise is resolved with project data.
- * 
+ *
  * @param  {Object} projectData Project definition
- * 
+ *
  * @return {Promise}
  */
 Project.prototype.create = function(projectData) {
     var api = this.api;
-    
+
     return api.request('/gdc/projects', 'POST', {
         project: {
             content: {
@@ -94,7 +94,7 @@ Project.prototype.create = function(projectData) {
         }
     }).then(function(res) {
         var projectUri = res.data.uri;
-        
+
         var check = function() {
             return api.request(projectUri).then(function(res) {
                 return res.data.project.content.state === 'LOADING' ? check() : res.data.project;
@@ -110,14 +110,32 @@ Project.prototype.create = function(projectData) {
 };
 
 /**
+ * Load project data from project resource
+ *
+ * Data is stored in `data` property of this instance
+ *
+ * @param  {String} projectLink [optional] Project URL
+ * @return {Promise}
+ */
+Project.prototype.load = function(projectLink) {
+    projectLink = projectLink || this.data.links.self;
+
+    return this.api.request(projectLink).then(function(res) {
+        this.data = res.data.project;
+
+        return this.data;
+    }.bind(this));
+};
+
+/**
  * Delete project on server.
- * 
+ *
  * @param  {String} projectLink [optional] Project URI
  * @return {Promise}
  */
 Project.prototype.delete = function(projectLink) {
     projectLink = projectLink || this.data.links.self;
-    
+
     return this.api.request(projectLink, 'DELETE').then(function() {
         this.data = null;
     }.bind(this));
@@ -125,9 +143,9 @@ Project.prototype.delete = function(projectLink) {
 
 /**
  * List all the project roles
- * 
+ *
  * Returned promise is resolved with an array of Role instances
- * 
+ *
  * @return {Promise}
  */
 Project.prototype.listRoles = function() {
@@ -152,12 +170,12 @@ Project.prototype.listRoles = function() {
 /**
  * Finds a role by name. In cae there s no role with such a name,
  * promise is rejected.
- * 
+ *
  * This is a convenience method that speeds up the search for a role
  * otherwise accomplished by iterating the array returned by listRoles() method.
- * 
+ *
  * Returned promise is resolved with found Role instance.
- * 
+ *
  * @param  {String} name Role name
  * @return {Promise}
  */
@@ -192,33 +210,35 @@ Project.prototype.getRoleByName = function(name) {
 
 /**
  * Invite user to this project.
- * 
- * This method receives an instance of User object (does not have to be bootstrapped yet),
+ *
+ * This method receives an instance of User object (user HAS to be at least logged in!),
  * String name of the role that this user should be assigned and Object containing
  * email credentials needed to accept invitation sent by email.
- * 
+ *
  * Returned promise is resolved with this instance.
- * 
- * @param  {User} user User instance
+ *
+ * @throws {Error} If user is not loaded
+ *
+ * @param  {User|String} user User instance or user login email
  * @param  {String} roleName Role name, e.g. `Admin`, `Editor`
  * @return {Promise}
  */
 Project.prototype.invite = function(user, roleName, emailCredentials) {
-    if (!user.data.login) { // Load bootstrap data first
-        return user.load().then(function() {
-            this.invite(user, roleName);
-        }.bind(this));
+    var login = typeof(user) === 'string' ? user : user.data.login;
+
+    if (!login) {
+        throw new Error('No login for invitation provided');
     }
-    
+
     return this.getRoleByName(roleName).then(function(role) { // Load role definition
         return this.api.request(this.data.links.invitations, 'POST', { // Create invitation
             invitations: [
                 {
                     invitation: {
                         content: {
-                            email: user.data.login,
-                            firstname: user.data.firstName,
-                            lastname: user.data.lastName,
+                            email: login,
+                            firstname: '',
+                            lastname: '',
                             role: role.data.links.self,
                             action: {
                                 setMessage: ''
@@ -231,7 +251,7 @@ Project.prototype.invite = function(user, roleName, emailCredentials) {
     }.bind(this)).then(function() {
         var criteria = [
             ['FROM', 'invitation@gooddata.com'],
-            ['TO', user.data.login],
+            ['TO', login],
             'UNSEEN'
         ];
         var inbox = new Inbox({
@@ -299,7 +319,7 @@ module.exports = Project;
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Feb 25 2014 22:02:49 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Feb 27 2014 13:24:05 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
