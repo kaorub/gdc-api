@@ -1,6 +1,6 @@
 {
   "name": "gdc-api",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Node.js interface to GoodData public API",
   "keywords": [
     "GoodData"
