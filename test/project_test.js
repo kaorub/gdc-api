@@ -9,7 +9,8 @@ var sinon = require('sinon');
 var config = require('./config');
 var API = require('../lib/api');
 var User = API.User;
-var Project = API.User.Project;
+var Project = User.Project;
+var Dashboard = Project.Dashboard;
 
 expect = require('sinon-expect').enhance(expect, sinon, 'was');
 
@@ -23,8 +24,6 @@ describe('Project', function() {
 
         this.user.login(config).done(function() {
             done();
-        }, function(error) {
-            throw error;
         });
     });
 
@@ -92,6 +91,26 @@ describe('Project', function() {
             }).then(function() {
                 return this.createdProject.invite(userData.username, 'Admin', userData);
             }.bind(this)).done(function() {
+                done();
+            });
+        });
+
+        it('should query and return array', function(done) {
+            this.createdProject.query('projectdashboards').done(function(dashboards) {
+                expect(dashboards).to.be.an('array');
+
+                done();
+            });
+        });
+
+        it('should list dashboards', function(done) {
+            this.createdProject.listDashboards('projectdashboards').done(function(dashboards) {
+                expect(dashboards).to.be.an('array');
+
+                dashboards.forEach(function(dashboard) {
+                    expect(dashboard).to.be.a(Dashboard);
+                });
+
                 done();
             });
         });

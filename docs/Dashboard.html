@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Role</title>
+    <title>JSDoc: Class: Dashboard</title>
     
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Class: Role</h1>
+    <h1 class="page-title">Class: Dashboard</h1>
     
     
 
@@ -27,7 +27,7 @@
     
 <header>
     <h2>
-    Role
+    Dashboard
     </h2>
     
 </header>  
@@ -39,7 +39,7 @@
     
         
 <dt>
-    <h4 class="name" id="Role"><span class="type-signature"></span>new Role<span class="signature">(api, project, data)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Dashboard"><span class="type-signature"></span>new Dashboard<span class="signature">(api, project, data)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -47,7 +47,7 @@
     
     
     <div class="description">
-        Role resource object.
+        Dashboard resource object.
     </div>
     
 
@@ -248,7 +248,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="role.js.html">role.js</a>, <a href="role.js.html#line13">line 13</a>
+        <a href="dashboard.js.html">dashboard.js</a>, <a href="dashboard.js.html#line13">line 13</a>
     </li></ul></dd>
     
     
@@ -294,7 +294,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="addUser"><span class="type-signature"></span>addUser<span class="signature">(user)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="__setLocked"><span class="type-signature">&lt;private> </span>__setLocked<span class="signature">(lock)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
     
     
 </dt>
@@ -302,9 +302,7 @@
     
     
     <div class="description">
-        Assign this role to the user.
-
-Returned promise is resolved with this instance.
+        Set `locked` meta property to specified value
     </div>
     
 
@@ -338,13 +336,13 @@ Returned promise is resolved with this instance.
 	
         <tr>
             
-                <td class="name"><code>user</code></td>
+                <td class="name"><code>lock</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type"><a href="User.html">User</a></span>
+<span class="param-type">Boolean</span>
 
 
             
@@ -354,7 +352,7 @@ Returned promise is resolved with this instance.
             
             
             
-            <td class="description last">User instance</td>
+            <td class="description last">New `locked` value</td>
         </tr>
 	
 	
@@ -385,7 +383,7 @@ Returned promise is resolved with this instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="role.js.html">role.js</a>, <a href="role.js.html#line28">line 28</a>
+        <a href="dashboard.js.html">dashboard.js</a>, <a href="dashboard.js.html#line27">line 27</a>
     </li></ul></dd>
     
     
@@ -409,6 +407,325 @@ Returned promise is resolved with this instance.
     <h5>Returns:</h5>
     
             
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(dashboardUri)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Load dashboard data from dashboard resource
+
+Data is stored in `data` property of this instance
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>dashboardUri</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">[optional] Dashboard URL</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="dashboard.js.html">dashboard.js</a>, <a href="dashboard.js.html#line43">line 43</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="lock"><span class="type-signature"></span>lock<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Lock dashboard for editing by non-admin users
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="dashboard.js.html">dashboard.js</a>, <a href="dashboard.js.html#line58">line 58</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    [description]
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="unlock"><span class="type-signature"></span>unlock<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Unlock dashboard for editing by non-admin users
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="dashboard.js.html">dashboard.js</a>, <a href="dashboard.js.html#line67">line 67</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    [description]
+</div>
+
 
 
 <dl>

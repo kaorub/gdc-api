@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: role.js</title>
+    <title>JSDoc: Source: dashboard.js</title>
     
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Source: role.js</h1>
+    <h1 class="page-title">Source: dashboard.js</h1>
     
     
 
@@ -26,43 +26,76 @@
     <section>
         <article>
             <pre class="prettyprint source"><code>/**
- * Role resource object.
- * 
+ * Dashboard resource object.
+ *
  * @constructor
- * 
+ *
  * @property {API} api API instance
  * @property {Project} project Project instance
- * 
+ *
  * @param {API} api API instance
  * @param {Project} project Project instance
  * @param {Object} data [optional] Server data
  */
-var Role = function(api, project, data) {
+var Dashboard = function(api, project, data) {
     this.api = api;
     this.project = project;
     this.data = data || {};
 };
 
 /**
- * Assign this role to the user.
- * 
- * Returned promise is resolved with this instance.
- * 
- * @param {User} user User instance
- * 
+ * Set `locked` meta property to specified value
+ *
+ * @private
+ * @param  {Boolean} lock New `locked` value
+ *
  * @return {Promise}
  */
-Role.prototype.addUser = function(user) {
-    return this.api.request(this.data.links.roleUsers, 'POST', {
-        associateUser: {
-            user: user.data.accountSetting.links.self
-        }
-    }).then(function() {
-        return this;
+Dashboard.prototype.__setLocked = function(lock) {
+    this.data.meta.locked = lock ? '1' : '0';
+
+    return this.api.request(this.data.meta.uri, 'POST', {
+        projectDashboard: this.data
+    });
+};
+
+/**
+ * Load dashboard data from dashboard resource
+ *
+ * Data is stored in `data` property of this instance
+ *
+ * @param  {String} dashboardUri [optional] Dashboard URL
+ * @return {Promise}
+ */
+Dashboard.prototype.load = function(dashboardUri) {
+    dashboardUri = dashboardUri || this.data.meta.uri;
+
+    return this.api.request(dashboardUri).then(function(res) {
+        this.data = res.data.projectDashboard;
+
+        return this.data;
     }.bind(this));
 };
 
-module.exports = Role;
+/**
+ * Lock dashboard for editing by non-admin users
+ *
+ * @return {Promise} [description]
+ */
+Dashboard.prototype.lock = function() {
+    return this.__setLocked(true);
+};
+
+/**
+ * Unlock dashboard for editing by non-admin users
+ *
+ * @return {Promise} [description]
+ */
+Dashboard.prototype.unlock = function() {
+    return this.__setLocked(false);
+};
+
+module.exports = Dashboard;
 </code></pre>
         </article>
     </section>

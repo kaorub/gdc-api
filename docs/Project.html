@@ -271,7 +271,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line18">line 18</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line20">line 20</a>
     </li></ul></dd>
     
     
@@ -313,6 +313,70 @@
         <h3 class="subsection-title">Members</h3>
         
         <dl>
+            
+<dt>
+    <h4 class="name" id="Dashboard"><span class="type-signature">&lt;static> </span>Dashboard<span class="type-signature"> :Class</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Reference to dashboard class
+    </div>
+    
+    
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Class</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
             
 <dt>
     <h4 class="name" id="Role"><span class="type-signature">&lt;static> </span>Role<span class="type-signature"> :Class</span></h4>
@@ -361,7 +425,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line30">line 30</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line32">line 32</a>
     </li></ul></dd>
     
     
@@ -383,6 +447,171 @@
         <h3 class="subsection-title">Methods</h3>
         
         <dl>
+            
+<dt>
+    <h4 class="name" id="__queryAndLoad"><span class="type-signature">&lt;private> </span>__queryAndLoad<span class="signature">(type, wrapper)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Query project for list of objects of given type
+and load each object's data.
+
+You can pass second parameter of type function that will be called
+for each returned object and return value of this call will be used
+instead of raw data.
+
+Returned promise is resolved with array of loaded objects.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Subject of query, e.g. projectdashboards</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>wrapper</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">[optional] Processor callback</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line167">line 167</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
             
 <dt>
     <h4 class="name" id="create"><span class="type-signature"></span>create<span class="signature">(projectData)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
@@ -487,7 +716,7 @@ Returned promise is resolved with project data.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line52">line 52</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line62">line 62</a>
     </li></ul></dd>
     
     
@@ -533,7 +762,7 @@ Returned promise is resolved with project data.
         
             
 <dt>
-    <h4 class="name" id="delete"><span class="type-signature"></span>delete<span class="signature">(projectLink)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="delete"><span class="type-signature"></span>delete<span class="signature">(projectUri)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
     
     
 </dt>
@@ -575,7 +804,7 @@ Returned promise is resolved with project data.
 	
         <tr>
             
-                <td class="name"><code>projectLink</code></td>
+                <td class="name"><code>projectUri</code></td>
             
             
             <td class="type">
@@ -622,7 +851,7 @@ Returned promise is resolved with project data.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line109">line 109</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line119">line 119</a>
     </li></ul></dd>
     
     
@@ -763,7 +992,7 @@ Returned promise is resolved with found Role instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line155">line 155</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line235">line 235</a>
     </li></ul></dd>
     
     
@@ -930,7 +1159,7 @@ Returned promise is resolved with this instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line199">line 199</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line281">line 281</a>
     </li></ul></dd>
     
     
@@ -1003,7 +1232,7 @@ Returned promise is resolved with this instance.
         
             
 <dt>
-    <h4 class="name" id="listRoles"><span class="type-signature"></span>listRoles<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="listDashboards"><span class="type-signature"></span>listDashboards<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
     
     
 </dt>
@@ -1011,9 +1240,9 @@ Returned promise is resolved with this instance.
     
     
     <div class="description">
-        List all the project roles
+        List project dashboards
 
-Returned promise is resolved with an array of Role instances
+Returned promise is resolved with an array of Dashboard objects
     </div>
     
 
@@ -1046,7 +1275,7 @@ Returned promise is resolved with an array of Role instances
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line124">line 124</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line188">line 188</a>
     </li></ul></dd>
     
     
@@ -1092,7 +1321,96 @@ Returned promise is resolved with an array of Role instances
         
             
 <dt>
-    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(projectLink)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="listRoles"><span class="type-signature"></span>listRoles<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        List all the project roles
+
+Returned promise is resolved with an array of Role instances
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line204">line 204</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(projectUri)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
     
     
 </dt>
@@ -1136,7 +1454,7 @@ Data is stored in `data` property of this instance
 	
         <tr>
             
-                <td class="name"><code>projectLink</code></td>
+                <td class="name"><code>projectUri</code></td>
             
             
             <td class="type">
@@ -1183,7 +1501,152 @@ Data is stored in `data` property of this instance
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="project.js.html">project.js</a>, <a href="project.js.html#line93">line 93</a>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line103">line 103</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Promise</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="query"><span class="type-signature"></span>query<span class="signature">(type)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Query project for list of objects of given type.
+
+Available objects include:
+
+- projectdashboards
+- reports
+- datasets
+- userfilters
+- scheduledemails
+
+Returned promise is resolved with an array of result objects
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Subject of query, e.g. projectdashboards</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="project.js.html">project.js</a>, <a href="project.js.html#line143">line 143</a>
     </li></ul></dd>
     
     
@@ -1242,13 +1705,13 @@ Data is stored in `data` property of this instance
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="API.html">API</a></li><li><a href="Project.html">Project</a></li><li><a href="Role.html">Role</a></li><li><a href="User.html">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#request">request</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="API.html">API</a></li><li><a href="Dashboard.html">Dashboard</a></li><li><a href="Project.html">Project</a></li><li><a href="Role.html">Role</a></li><li><a href="User.html">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#request">request</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Feb 28 2014 15:58:25 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sat Mar 01 2014 16:16:43 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
