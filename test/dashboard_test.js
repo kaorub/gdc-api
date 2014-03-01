@@ -82,5 +82,15 @@ describe('Dashboard', function() {
                 done();
             });
         });
+
+        it('should set itself as default', function(done) {
+            this.dashboard.setAsDefault().then(function() {
+                return this.user.getSettings();
+            }.bind(this)).done(function(settings) {
+                expect(settings.projectSettings[this.project.uri].dashboard).to.be(this.dashboard.uri);
+
+                done();
+            }.bind(this));
+        });
     });
 });

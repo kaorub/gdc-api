@@ -2,8 +2,6 @@
 
 require('colors');
 
-var https = require('https');
-
 var expect = require('expect.js');
 var sinon = require('sinon');
 var config = require('./config');
@@ -17,18 +15,14 @@ expect = require('sinon-expect').enhance(expect, sinon, 'was');
 describe('Project', function() {
     beforeEach(function(done) {
         this.api = new API(config);
+        this.api.debug = true;
+
         this.user = new User(this.api);
         this.project = new Project(this.api, this.user);
-
-        sinon.spy(https, 'request');
 
         this.user.login(config).done(function() {
             done();
         });
-    });
-
-    afterEach(function() {
-        https.request.restore();
     });
 
     it('should create project', function(done) {
@@ -77,6 +71,16 @@ describe('Project', function() {
 
                 done();
             });
+        });
+
+        it('should set itself as default', function(done) {
+            this.createdProject.setAsDefault().then(function() {
+                return this.user.getSettings();
+            }.bind(this)).done(function(settings) {
+                expect(settings.currentProjectUri).to.be(this.createdProject.uri);
+
+                done();
+            }.bind(this));
         });
 
         it('should invite user', function(done) {
