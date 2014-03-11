@@ -41,13 +41,29 @@ var util = require('util');
  *
  * @property {String} hostname Target hostname
  * @property {Number} port Target port number
- * @property {String} sst SST token to use with requests
- * @property {String} captchaAnswer Universal captcha answer
+ * @property {Boolean} debug If true, outputs verbose debug information to console
  */
 var API = function(options) {
-    this.hostname = options.hostname;
-    this.port = options.port;
-    this.captchaAnswer = options.captchaAnswer;
+    this.debug = !!options.debug;
+
+    var hostname, port;
+
+    if (options.host) {
+        var match = options.host.match(/^(?:https:\/\/)?(.*?)(?:\:(\d+))?$/i);
+
+        if (match) {
+            hostname = match[1];
+            port = options.port || match[2] || 443;
+        }
+    } else {
+        hostname = options.hostname;
+        port = options.port || 443;
+    }
+
+    this.log('Using backend %s:%s', hostname, port);
+
+    this.hostname = hostname;
+    this.port = port;
 };
 
 /**
@@ -58,19 +74,31 @@ var API = function(options) {
  */
 API.User = require('./user');
 
-API.prototype = {
+/**
+ * Reference to project class
+ *
+ * @static
+ * @type {Class}
+ */
+API.Project = require('./project');
 
-    /**
-     * Debug mode.
-     *
-     * In debug mode API logs requests and response status codes to console
-     *
-     * @type {Boolean}
-     */
-    get debug() { return this.__debug; },
-    set debug(value) {
-        this.__debug = !!value;
-    },
+/**
+ * Reference to Role class
+ *
+ * @static
+ * @type {Class}
+ */
+API.Role = require('./role');
+
+/**
+ * Reference to dashboard class
+ *
+ * @static
+ * @type {Class}
+ */
+API.Dashboard = require('./dashboard');
+
+API.prototype = {
 
     /**
      * Target hostname
@@ -99,32 +127,31 @@ API.prototype = {
             throw new Error('Invalid port number: ' + port);
         }
 
-        this.__port = value;
-    },
-
-    /**
-     * SST token
-     *
-     * @type {String}
-     */
-    get sst() { return this.__sst; },
-    set sst(value) {
-        if (value !== null && (typeof(value) !== 'string' || !value.match(/^[a-z0-9]+$/i))) {
-            throw new Error('Invalid SST: ' + value);
-        }
-
-        if (value === null) {
-            this.__tt = null;
-        }
-
-        this.__sst = value;
+        this.__port = port;
     }
+};
+
+/**
+ * Helper function that creates and loads user based on his profile URI
+ *
+ * @param  {String} profileUri
+ * @param  {String} password
+ * @return {Promise}
+ */
+API.prototype.__createUser = function(profileUri, password) {
+    var userInstance = new API.User(this, null, password);
+
+    return userInstance.load(profileUri).then(function() {
+        return userInstance;
+    });
 };
 
 /**
  * Renew TT token after a request has failed with HTTP 401 status
  *
  * @private
+ *
+ * @return {Promise}
  */
 API.prototype.__refreshTT = function() {
     return this.request('/gdc/account/token').then(function(res) {
@@ -142,8 +169,6 @@ API.prototype.__refreshTT = function() {
         if (!tt) {
             throw new Error('No temporary token returned');
         }
-
-        return tt;
     }.bind(this));
 };
 
@@ -153,9 +178,86 @@ API.prototype.__refreshTT = function() {
  * Only outputs to console if `debug` is set to true
  */
 API.prototype.log = function() {
-    if (this.__debug) {
+    if (this.debug) {
         console.log.apply(console, arguments);
     }
+};
+
+/**
+ * Authenticates user
+ *
+ * Returned promise is resolved with instance of User class.
+ * This instance is filled with user data from server.
+ *
+ * @param  {Object} credentials Login credentials. Must contain `username` and `password` properties
+ * @return {Promise}
+ */
+API.prototype.login = function(user) {
+    return this.request('/gdc/account/login', 'POST', {
+        postUserLogin: {
+            captcha: '',
+            login: user.username,
+            password: user.password,
+            remember: '0',
+            verifyCaptcha: ''
+        }
+    }).then(function(res) {
+        var cookies = res.headers['set-cookie'] || [];
+        var sst = (function() {
+            for (var i = 0, n = cookies.length; i &lt; n; i++) {
+                var match = cookies[i].match(/GDCAuthSST=(.+?)(;| |$)/);
+
+                if (match) return match[1];
+            }
+        })();
+
+        if (!sst) {
+            throw new Error('SST not found in response headers');
+        }
+
+        this.__sst = sst;
+
+        return this.__createUser(res.data.userLogin.profile, user.password);
+    }.bind(this));
+};
+
+/**
+ * Authenticates user
+ *
+ * Returned promise is resolved with instance of User class.
+ * This instance is filled with user data from server.
+ *
+ * @param  {Object|User} user    User object. Must contain at least `username` and `password` properties
+ * @param  {String} captcha Captcha answer
+ * @return {Promise}
+ */
+API.prototype.createUser = function(user, captcha) {
+    var data = {
+        firstName: user.firstName || 'Dummy',
+        lastName: user.lastName || 'User',
+        licence: '1', // Beware! It truly is licence with c
+        login: user.username,
+        password: user.password,
+        verifyPassword: user.password,
+        phoneNumber: '777777777',
+        role: 'Developer',
+        industry: 'IT',
+        companyName: 'GoodData',
+        verifyCaptcha: null,
+        captcha: captcha
+    };
+
+    return this.request('/gdc/tool/captcha').then(function(res) { // first we need a valid captcha
+        return res.data.captcha.verifyCaptcha;
+    }).then(function(verifyCaptcha) {
+        data.verifyCaptcha = verifyCaptcha;
+
+        return this.request('/gdc/account/registration', 'POST', { // post a registration request
+            postRegistration: data
+        });
+    }.bind(this)).then(function() {
+        return new API.User(this, data, user.password);
+    }.bind(this));
 };
 
 /**
@@ -179,13 +281,14 @@ API.prototype.request = function(url, method, data) {
         port: this.port,
         path: url,
         method: method || 'GET',
-        sst: this.sst,
+        sst: this.__sst,
         tt: this.__tt
     };
 
     this.log('http %s %s', options.method, options.path);
 
     if (url.match('^/gdc/account/login') && method === 'POST') { // If this request is a login attempt
+        this.__sst = null;
         this.__tt = null; // Delete TT token since every possible response path must lead to TT refresh
     }
 
@@ -226,7 +329,7 @@ module.exports = API;
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sun Mar 02 2014 00:55:25 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Mar 11 2014 15:09:22 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -6,35 +6,33 @@ var expect = require('expect.js');
 var sinon = require('sinon');
 var config = require('./config');
 var API = require('../lib/api');
-var User = API.User;
-var Project = User.Project;
-var Dashboard = Project.Dashboard;
+var Dashboard = API.Dashboard;
 
 expect = require('sinon-expect').enhance(expect, sinon, 'was');
 
 describe('Dashboard', function() {
     before(function(done) {
-        this.api = new API(config);
-        this.user = new User(this.api);
-        this.project = new Project(this.api, this.user);
+        var api = this.api = new API(config);
 
-        this.user.login(config).then(function() {
-            return this.project.create({
+        api.login(config).then(function(user) {
+            this.user = user;
+
+            return user.createProject({
                 title: 'Some project title',
                 template: '/projectTemplates/GoodSalesDemo/2/',
                 token: config.projectToken,
             });
-        }.bind(this)).then(function() {
-            return this.project.listDashboards();
-        }.bind(this)).done(function(dashboards) {
-            this.dashboard = dashboards[0];
+        }.bind(this)).then(function(project) {
+            this.project = project;
 
-            done();
-        }.bind(this));
+            return project.listDashboards();
+        }.bind(this)).then(function(dashboards) {
+            this.dashboard = dashboards[0];
+        }.bind(this)).done(done);
     });
 
     after(function(done) {
-        this.project.delete().then(function() {
+        this.project.delete().done(function() {
             done();
         });
     });

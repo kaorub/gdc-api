@@ -2,44 +2,21 @@
 
 require('colors');
 
-var https = require('https');
-
 var expect = require('expect.js');
-var sinon = require('sinon');
 var config = require('./config');
 var API = require('../lib/api');
-var User = API.User;
-
-expect = require('sinon-expect').enhance(expect, sinon, 'was');
 
 describe('User', function() {
-    beforeEach(function() {
+    beforeEach(function(done) {
         this.api = new API(config);
-        this.api.debug = true;
 
-        this.user = new User(this.api);
-
-        sinon.spy(https, 'request');
-    });
-
-    afterEach(function() {
-        https.request.restore();
-    });
-
-    it('should login, get SST and return account data', function(done) {
-        this.user.login(config).done(function(data) {
-            expect(this.api.sst).to.be.ok();
-            expect(data).to.have.property('login');
-            expect(data.login).to.be(config.username);
-
-            done();
-        }.bind(this));
+        this.api.login(config).then(function(user) {
+            this.user = user;
+        }.bind(this)).done(done);
     });
 
     it('should list projects', function(done) {
-        this.user.login(config).then(function() {
-            return this.user.listProjects();
-        }.bind(this)).done(function(projects) {
+        this.user.listProjects().done(function(projects) {
             expect(projects).to.be.an('array');
 
             done();
@@ -47,9 +24,7 @@ describe('User', function() {
     });
 
     it('should load bootstrap data', function(done) {
-        this.user.login(config).then(function() {
-            return this.user.bootstrap();
-        }.bind(this)).done(function(data) {
+        this.user.bootstrap().done(function(data) {
             expect(data).to.have.property('accountSetting');
             expect(data).to.have.property('profileSetting');
 
@@ -58,9 +33,7 @@ describe('User', function() {
     });
 
     it('should load account data', function(done) {
-        this.user.login(config).then(function() {
-            return this.user.load();
-        }.bind(this)).done(function(data) {
+        this.user.load().done(function(data) {
             expect(data).to.have.property('login');
             expect(data.login).to.be(config.username);
 
@@ -69,9 +42,7 @@ describe('User', function() {
     });
 
     it('should load settings', function(done) {
-        this.user.login(config).then(function() {
-            return this.user.getSettings();
-        }.bind(this)).done(function(data) {
+        this.user.getSettings().done(function(data) {
             expect(data).to.have.property('currentProjectUri');
             expect(data).to.have.property('projectSettings');
 
@@ -80,9 +51,7 @@ describe('User', function() {
     });
 
     it('should save settings', function(done) {
-        this.user.login(config).then(function() {
-            return this.user.getSettings();
-        }.bind(this)).then(function(settings) {
+        return this.user.getSettings().then(function(settings) {
             settings.currentProjectUri = null;
 
             return this.user.setSettings(settings);
@@ -109,26 +78,30 @@ describe('User', function() {
         }.bind(this)).done();
     });
 
-    it('should register user', function(done) {
-        var data = {
-            username: config.username.replace('@', '+' + Date.now() + '@'),
-            password: config.password
-        };
-
-        this.user.register(data).done(function() {
-            done();
-        });
-    });
-
     it('should activate user', function(done) {
         var data = {
             username: config.username.replace('@', '+' + Date.now() + '@'),
             password: config.password
         };
 
-        this.user.register(data).then(function() {
-            return this.user.activate(data);
+        this.api.createUser(data, config.captcha).then(function(user) {
+            return user.activate(data);
         }.bind(this)).done(function() {
+            done();
+        });
+    });
+
+    it('should create project', function(done) {
+        var project = {
+            title: 'Some great project',
+            token: config.projectToken
+        };
+
+        this.user.createProject(project).done(function(project) {
+            expect(project).to.be.an(API.Project);
+            expect(project.data).to.have.property('content');
+            expect(project.data).to.have.property('meta');
+
             done();
         });
     });
@@ -139,8 +112,8 @@ describe('User', function() {
             password: config.password
         };
 
-        this.user.register(data).then(function() {
-            return this.user.activate(data);
+        this.api.createUser(data, config.captcha).then(function(user) {
+            return user.activate(data);
         }.bind(this)).then(function() {
             return this.user.login(data);
         }.bind(this)).then(function() {
