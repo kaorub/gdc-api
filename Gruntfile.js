@@ -5,18 +5,11 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
 
     grunt.initConfig({
+        package: grunt.file.readJSON('package.json'),
         watch: {
             test: {
                 files: ['lib/**/*.js', 'test/**/*.js'],
                 tasks: ['shell:test']
-            }
-        },
-        jsdoc : {
-            dist : {
-                src: ['lib/**/*.js'],
-                options: {
-                    destination: 'docs'
-                }
             }
         },
         jshint: {
@@ -37,14 +30,29 @@ module.exports = function (grunt) {
                     stderr: true
                 }
             }
+        },
+        browserify: {
+            dist: {
+                src: ['src/browser/api_factory.js'],
+                dest: 'dist/app-<%= package.version %>.js',
+                options: {
+                    alias: ['src/browser/api_factory.js:gdc-api'],
+                    ignore: ['src/node/**/*.js'],
+                },
+            }
         }
     });
+
+    grunt.registerTask('build', [
+        'test',
+        'browserify:dist'
+    ]);
 
     grunt.registerTask('test', function(target) {
         var tasks = ['jshint', 'shell:test'];
         var pattern = grunt.option('test') || '*';
-        var test = 'test/' + pattern + '_test.js';
-        
+        var test = 'test/**/' + pattern + '_test.js';
+
         grunt.config.set('shell.test.command', grunt.config.get('shell.test.command') + ' ' + test);
 
         if (target === 'live') {
@@ -54,5 +62,5 @@ module.exports = function (grunt) {
         grunt.task.run(tasks);
     });
 
-    grunt.registerTask('default', ['test']);
+    grunt.registerTask('default', ['build']);
 };
