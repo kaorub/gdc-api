@@ -59,7 +59,9 @@ PromiseStack.chainedMethod = function(method) {
 PromiseStack.prototype = {
 
     /**
-     * Same as promise.then method.
+     * Same as promise.then method, but the callbacks are executed
+     * with `thi` bound to this instance.
+     *
      * See promise A+ reference for more details on promises.
      *
      * @param  {Function} done Done callback
@@ -67,11 +69,17 @@ PromiseStack.prototype = {
      * @return {Promise}
      */
     then: function(done, fail) {
-        return this.__promise.then(done, fail);
+        return this.__promise.then(function() {
+            done.apply(this, arguments);
+        }.bind(this), function() {
+            fail.apply(this, arguments);
+        }.bind(this));
     },
 
     /**
-     * Same as promise.done method.
+     * Same as promise.done method, but the callbacks are executed
+     * with `thi` bound to this instance.
+     *
      * See promise A+ reference for more details on promises.
      *
      * @param  {Function} done Done callback
@@ -79,7 +87,11 @@ PromiseStack.prototype = {
      * @return {Promise}
      */
     done: function(done, fail) {
-        return this.__promise.done(done, fail);
+        return this.__promise.done(function() {
+            done.apply(this, arguments);
+        }.bind(this), function() {
+            fail.apply(this, arguments);
+        }.bind(this));
     },
 
     /**
