@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: node/http.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: node/http.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>var utils = require('../common/utils');
+var unirest = require('unirest');
+var q = require('q');
+
+/**
+ * Node.js specific implementation of HTTP layer
+ *
+ * @class
+ *
+ * @param {Object} config Configuration object
+ * @param {String} config.hostname Remote server hostname
+ * @param {Number} config.port Remote server port
+ */
+var NodeHttp = function(config) {
+    if (!config.hostname) {
+        throw new Error('Hostname must be specified');
+    }
+
+    if (isNaN(parseInt(config.port, 10))) {
+        throw new Error('Port must be an integer, got ' + config.port);
+    }
+
+    /**
+     * Configuration object
+     *
+     * @private
+     * @memberOf NodeHttp#
+     * @type {Object}
+     */
+    Object.defineProperty(this, '__config', {
+        writable: true,
+        value: config
+    });
+
+    /**
+     * Cookie jar object
+     *
+     * @private
+     * @memberOf NodeHttp#
+     * @type {Object}
+     */
+    Object.defineProperty(this, '__cookieJar', {
+        value: unirest.jar()
+    });
+};
+
+NodeHttp.prototype = {
+
+    /**
+     * Last request ID. This value is obtained from response headers.
+     *
+     * @readOnly
+     * @property {?String} lastRequestId
+     * @memberOf NodeHttp#
+     */
+    get lastRequestId() { return this.__lastRequestId || null; },
+
+    /**
+     * Accessor function for configuration object.
+     *
+     * @see {@link utils.accessor} for description of accessor properties
+     * @method config
+     * @memberOf NodeHttp#
+     */
+    config: utils.accessor('__config'),
+
+    /**
+     * Performs a HTTP request and returns a promise
+     * resolved after the request is done. This promise is resolved
+     * with object containing `data` and `status` keys containing HTTP response status
+     * and response body parsed with JSON.parse().
+     *
+     * @param  {String|Object} path Request URI or options object. If a string, this takes priority over options.url
+     * @param  {Object} [options] Options object
+     * @param  {String} [options.url] Request URL
+     * @param  {String} [options.method=GET] Request HTTP method. Defaults to GET
+     * @param  {Object} [options.data] Request payload
+     * @param  {String|Object} [options.query] URL query string or object containing key/value pairs. Should not contain leading `?`
+     *
+     * @method request
+     * @memberOf NodeHttp#
+     *
+     * @return {Promise}
+     */
+    request: function(path, options) {
+        if (typeof(path) === 'object') {
+            options = path;
+            path = undefined;
+        }
+
+        options = utils.mixin({}, options);
+        options.url = this.__buildUrl(options.url || path);
+
+        return this.__sendRequest(options);
+    },
+
+    /**
+     * Builds full URL string from hostname, port and path
+     *
+     * @private
+     * @method __buildUrl
+     * @memberOf NodeHttp#
+     *
+     * @param  {String} path
+     *
+     * @return {String} Full URL
+     */
+    __buildUrl: function(path) {
+        var hostname = this.config('hostname'),
+            port = this.config('port');
+
+        return 'https://' + hostname + ':' + port + path;
+    },
+
+    /**
+     * Sends a HTTP request
+     *
+     * @private
+     * @method __sendRequest
+     * @memberOf NodeHttp#
+     *
+     * @param  {Object} options
+     * @return {Promise}
+     */
+    __sendRequest: function(options) {
+        var method = (options.method || 'GET').toLowerCase();
+        var request = unirest[method](options.url);
+        var deferred = q.defer();
+
+        request.jar(this.__cookieJar);
+        request.type('json');
+        request.header('accept', 'application/json');
+        request.strictSSL(false); // Prevent node from throwing DEPTH_ZERO_SELF_SIGNED_CERT error
+
+        if (options.headers) {
+            request.headers(options.headers);
+        }
+
+        if (options.data) {
+            request.send(options.data);
+        }
+
+        if (options.query) {
+            request.query(options.query);
+        }
+
+        request.end(function(response) {
+            var data;
+
+            this.__lastRequestId = response.headers['x-gdc-request'];
+
+            try {
+                data = typeof(response.body) === 'object' ? response.body : JSON.parse(response.body);
+            } catch(e) {
+                data = {};
+            }
+
+            deferred.resolve({
+                status: response.status,
+                data: data
+            });
+        }.bind(this));
+
+        return deferred.promise;
+    }
+};
+
+module.exports = NodeHttp;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-utils.html">utils</a></li></ul><h3>Classes</h3><ul><li><a href="Api.html">Api</a></li><li><a href="BrowserApi.html">BrowserApi</a></li><li><a href="BrowserHttp.html">BrowserHttp</a></li><li><a href="Dashboard.html">Dashboard</a></li><li><a href="Metric.html">Metric</a></li><li><a href="NodeApi.html">NodeApi</a></li><li><a href="NodeHttp.html">NodeHttp</a></li><li><a href="ProfileSettings.html">ProfileSettings</a></li><li><a href="Project.html">Project</a></li><li><a href="PromiseStack.html">PromiseStack</a></li><li><a href="Report.html">Report</a></li><li><a href="ReportDefinition.html">ReportDefinition</a></li><li><a href="Resource.html">Resource</a></li><li><a href="Role.html">Role</a></li><li><a href="User.html">User</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Jun 11 2014 16:36:13 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

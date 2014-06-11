@@ -8,48 +8,41 @@ var q = require('q');
  * that resolves after the last asynchronous operation
  * has completed.
  *
- * @constructor
+ * @class
  */
 var PromiseStack = function() {
     this.__promise = q();
 };
 
 /**
- * Chained method generator.
+ * <p>Chained method generator.</p>
  *
- * Chained methods return this object instance
- * and add a then() clause to this object's promise.
+ * <p>Chained methods return this object instance
+ * and add a then() clause to this object's promise.</p>
  *
- * Beware! Returning this instance from chained method creates
- * a deadlock. Instance has then() method and is considered
- * a promise. Stack has this promise on top and resolves after this promise
- * resolves, thus blocking the stack.
+ * <p><strong>BEWARE</strong> Using chained methods that call other chained methods is a bad practice
+ * and can lead to deadlocks.</p>
  *
- * In case this happens, promise is rejected.
- *
- * In practice this means that by calling a chained method,
+ * <p>In practice this means that by calling a chained method,
  * we make it run after the promise stack is resolved. Any other
- * chained method is run after this method resolves.
+ * chained method is run after this method resolves.</p>
  *
- * In case one method in chain rejects, the others are not run.
+ * <p>In case one method in chain rejects, the others are not run.</p>
  *
  * @static
+ * @method chainedMethod
+ * @memberOf PromiseStack
  *
- * @param  {Function} method Method to be made chained
- * @return {Function}        Generated method
+ * @param  {Function|String} method Function to wrap
+ * @return {Function}        Wrapped function
  */
-PromiseStack.chainedMethod = function(method) {
+PromiseStack.chainedMethod = function(methodOrName) {
     return function() {
         var args = arguments;
+        var method = typeof(methodOrName) === 'string' ? this[methodOrName] : methodOrName;
 
         this.__promise = this.__promise.then(function() {
-            var result = method.apply(this, args);
-
-            if (result instanceof PromiseStack) {
-                throw new Error('You cannot return instance of PromiseStack class from chained method. This causes deadlocks');
-            }
-
-            return result;
+            return method.apply(this, args);
         }.bind(this));
 
         return this;
@@ -59,59 +52,64 @@ PromiseStack.chainedMethod = function(method) {
 PromiseStack.prototype = {
 
     /**
-     * Same as promise.then method, but the callbacks are executed
-     * with `thi` bound to this instance.
+     * Returns underlying promise resolved with this instance.
      *
-     * See promise A+ reference for more details on promises.
+     * @method promise
+     * @memberOf PromiseStack#
      *
-     * @param  {Function} done Done callback
-     * @param  {Function} fail Fail callback
      * @return {Promise}
      */
-    then: function(done, fail) {
-        return this.__promise.then(function() {
-            done.apply(this, arguments);
-        }.bind(this), function() {
-            fail.apply(this, arguments);
+    promise: function() {
+        return this.__promise.then(function() { return this; }.bind(this));
+    },
+
+    /**
+     * <p>Same as promise.then method, but the callbacks are executed
+     * with `this` bound to this instance.</p>
+     *
+     * <p>Since naming this method `then` would cause collisions
+     * if returning instances of PromiseStack from done/fail callbacks
+     * as they would be falsely identified as promises itself
+     * and would cause infinite loops, we have to name it `andThen`</p>
+     *
+     * <p>See promise A+ reference for more details on promises.</p>
+     *
+     * @method andThen
+     * @memberOf PromiseStack#
+     *
+     * @param  {Function} [done] Done callback
+     * @param  {Function} [fail] Fail callback
+     *
+     * @return {Promise}
+     */
+    andThen: function(done, fail) {
+        return this.__promise.then(done && function() {
+            return done.apply(this, arguments);
+        }.bind(this), fail && function() {
+            return fail.apply(this, arguments);
         }.bind(this));
     },
 
     /**
-     * Same as promise.done method, but the callbacks are executed
-     * with `thi` bound to this instance.
+     * <p>Same as promise.done method, but the callbacks are executed
+     * with `this` bound to this instance.</p>
      *
-     * See promise A+ reference for more details on promises.
+     * <p>See promise A+ reference for more details on promises.</p>
      *
-     * @param  {Function} done Done callback
-     * @param  {Function} fail Fail callback
+     * @method done
+     * @memberOf PromiseStack#
+     *
+     * @param  {Function} [done] Done callback
+     * @param  {Function} [fail] Fail callback
+     *
      * @return {Promise}
      */
     done: function(done, fail) {
-        return this.__promise.done(function() {
-            done.apply(this, arguments);
-        }.bind(this), function() {
-            fail.apply(this, arguments);
+        return this.__promise.done(done && function() {
+            return done.apply(this, arguments);
+        }.bind(this), fail && function() {
+            return fail.apply(this, arguments);
         }.bind(this));
-    },
-
-    /**
-     * Execute passed method after current promise stack resolves.
-     *
-     * Beware! Returning this instance from chained method creates
-     * a deadlock. Instance has then() method and is considered
-     * a promise. Stack has this promise on top and resolves after this promise
-     * resolves, thus blocking the stack.
-     *
-     * Method is put on top of current promise stack and further calls
-     * to then() and done() are resolved/rejected
-     * after the method returns (or after the promise returned from the method
-     * resolves).
-     *
-     * @param  {Function} method Method to execute
-     * @return {PromiseStack} This instance
-     */
-    chain: function(method) {
-        return PromiseStack.chainedMethod(method).call(this);
     }
 };
 

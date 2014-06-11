@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: browser/http.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: browser/http.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>var utils = require('../common/utils');
+var q = require('q');
+
+/**
+ * Browser specific implementation of HTTP layer
+ *
+ * @class
+ *
+ * @param {Object} [config] Configuration object. This object is mostly redundant and is here only to comply with node.js implementation
+ */
+var BrowserHttp = function(config) {
+    config = utils.mixin({}, config, {
+        hostname: window.location.hostname,
+        port: window.location.port
+    });
+
+    /**
+     * Configuration object
+     *
+     * @private
+     * @memberOf BrowserHttp#
+     * @type {Object}
+     */
+    Object.defineProperty(this, '__config', {
+        writable: true,
+        value: config
+    });
+};
+
+BrowserHttp.prototype = {
+
+    /**
+     * Last request ID. This value is obtained from response headers.
+     *
+     * @readOnly
+     * @property {?String} lastRequestId
+     * @memberOf BrowserHttp#
+     */
+    get lastRequestId() { return this.__lastRequestId || null; },
+
+    /**
+     * Accessor function for configuration object.
+     *
+     * @see {@link utils.accessor} for description of accessor properties
+     * @method config
+     * @memberOf BrowserHttp#
+     */
+    config: utils.accessor('__config'),
+
+    /**
+     * Performs a HTTP request and returns a promise
+     * resolved after the request is done. This promise is resolved
+     * with object containing `data` and `status` keys containing HTTP response status
+     * and response body parsed with JSON.parse().
+     *
+     * @param  {String|Object} path Request URI or options object. If a string, this takes priority over options.url
+     * @param  {Object} [options] Options object
+     * @param  {String} [options.url] Request URL
+     * @param  {String} [options.method=GET] Request HTTP method. Defaults to GET
+     * @param  {Object} [options.data] Request payload
+     * @param  {String|Object} [options.query] URL query string or object containing key/value pairs. Should not contain leading `?`
+     *
+     * @method request
+     * @memberOf BrowserHttp#
+     *
+     * @return {Promise}
+     */
+    request: function(path, options) {
+        if (typeof(path) === 'object') {
+            options = path;
+            path = undefined;
+        }
+
+        options = utils.mixin({
+            resendAfterTokenRenewal: true
+        }, options);
+        options.url = path || options.url;
+
+        return this.__sendRequest(options);
+    },
+
+    /* global $ */
+    /**
+     * Sends a HTTP request
+     *
+     * @private
+     * @method __sendRequest
+     * @memberOf BrowserHttp#
+     *
+     * @param  {Object} options
+     * @return {Promise}
+     */
+    __sendRequest: function(options) {
+        // we'll pass URL as a separate parameter for easier testing
+        var url = options.url;
+
+        var ajaxOptions = {
+            dataType: 'json',
+            method: options.method || 'GET',
+        };
+
+        if (options.data) {
+            ajaxOptions.data = options.data;
+        }
+
+        if (options.headers) {
+            ajaxOptions.headers = options.headers;
+        }
+
+        if (options.query) {
+            var serialized = typeof(options.query) === 'string' ? options.query : $.param(options.query);
+            var separator = options.url.indexOf('?') === -1 ? '?' : '&';
+
+            url += separator + serialized;
+        }
+
+        var deferred = q.defer();
+
+        $.ajax(url, ajaxOptions).done(function(data, textStatus, xhr) {
+            this.__lastRequestId = xhr.getResponseHeader('x-gdc-request');
+
+            deferred.resolve({
+                status: xhr.status,
+                data: data || {}
+            });
+        }.bind(this)).fail(function(xhr) {
+            this.__lastRequestId = xhr.getResponseHeader('x-gdc-request');
+
+            var data = {};
+
+            try {
+                data = JSON.parse(xhr.responseText);
+            } catch(ignored) {}
+
+            deferred.resolve({
+                status: xhr.status,
+                data: data
+            });
+        }.bind(this));
+
+        return deferred.promise;
+    }
+};
+
+module.exports = BrowserHttp;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-utils.html">utils</a></li></ul><h3>Classes</h3><ul><li><a href="Api.html">Api</a></li><li><a href="BrowserApi.html">BrowserApi</a></li><li><a href="BrowserHttp.html">BrowserHttp</a></li><li><a href="Dashboard.html">Dashboard</a></li><li><a href="Metric.html">Metric</a></li><li><a href="NodeApi.html">NodeApi</a></li><li><a href="NodeHttp.html">NodeHttp</a></li><li><a href="ProfileSettings.html">ProfileSettings</a></li><li><a href="Project.html">Project</a></li><li><a href="PromiseStack.html">PromiseStack</a></li><li><a href="Report.html">Report</a></li><li><a href="ReportDefinition.html">ReportDefinition</a></li><li><a href="Resource.html">Resource</a></li><li><a href="Role.html">Role</a></li><li><a href="User.html">User</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Jun 11 2014 16:36:13 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
